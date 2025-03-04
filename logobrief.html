@@ -3,40 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تعبئة وتحميل PDF</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.16.0/pdf-lib.min.js"></script>
+    <title>عرض وملء ملف PDF</title>
     <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
     <style>
-        body { text-align: center; font-family: Arial, sans-serif; }
-        canvas { border: 1px solid #ccc; margin-top: 10px; }
-        #downloadBtn { display: none; margin-top: 10px; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            width: 100%;
+            max-width: 800px;
+        }
+        #downloadBtn {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
-    <h2>تعبئة وتحميل PDF</h2>
-    <input type="file" id="pdfUpload" accept="application/pdf">
+
+    <h2>عرض وملء ملف PDF</h2>
     <canvas id="pdfCanvas"></canvas>
-    <button id="downloadBtn">تحميل الملف</button>
-    
+    <button id="downloadBtn" onclick="downloadPDF()">تحميل الملف</button>
+
     <script>
-        let pdfDoc = null;
-        let pdfBytes = null;
+        const pdfUrl = 'Logo Brief.pdf'; // اسم ملف PDF الموجود في المستودع
 
-        document.getElementById('pdfUpload').addEventListener('change', async function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.readAsArrayBuffer(file);
-            reader.onload = async function() {
-                pdfBytes = new Uint8Array(reader.result);
-                pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-                renderPDF();
-            };
-        });
-
-        async function renderPDF() {
-            const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
+        async function loadPDF(url) {
+            const loadingTask = pdfjsLib.getDocument(url);
             const pdf = await loadingTask.promise;
             const page = await pdf.getPage(1);
             const viewport = page.getViewport({ scale: 1.5 });
@@ -52,15 +55,14 @@
             document.getElementById('downloadBtn').style.display = 'block';
         }
 
-        document.getElementById('downloadBtn').addEventListener('click', async function() {
-            if (!pdfDoc) return;
-            const newPdfBytes = await pdfDoc.save();
-            const blob = new Blob([newPdfBytes], { type: 'application/pdf' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'filled.pdf';
-            link.click();
+        function downloadPDF() {
+            window.open(pdfUrl, '_blank');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPDF(pdfUrl);
         });
     </script>
+
 </body>
 </html>
